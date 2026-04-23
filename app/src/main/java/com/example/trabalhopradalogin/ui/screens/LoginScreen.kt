@@ -62,15 +62,34 @@ fun LoginScreen(navController: NavController, viewModel: AuthViewModel) {
 
         Spacer(modifier = Modifier.height(24.dp))
 
+        var errorMessage by remember { mutableStateOf("") }
+
+        if (errorMessage.isNotEmpty()) {
+            Text(text = errorMessage, color = MaterialTheme.colorScheme.error)
+            Spacer(modifier = Modifier.height(8.dp))
+        }
+
         Button(
-            // Navega para o menu limpando a tela de login da pilha para simular um fluxo real onde um voltar não leva mais à tela de login solta.
-            onClick = { navController.navigate("menu") {
-                popUpTo("login") { inclusive = true }
-            } },
+            onClick = {
+                if (email.isBlank() || password.isBlank()) {
+                    errorMessage = "Preencha todos os campos."
+                } else {
+                    viewModel.loginUser(email, password) { success ->
+                        if (success) {
+                            navController.navigate("menu") {
+                                popUpTo("login") { inclusive = true }
+                            }
+                        } else {
+                            errorMessage = "E-mail ou senha incorretos."
+                        }
+                    }
+                }
+            },
             modifier = Modifier.fillMaxWidth()
         ) {
             Text("Login")
         }
+
 
         Spacer(modifier = Modifier.height(8.dp))
 

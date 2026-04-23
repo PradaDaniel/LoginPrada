@@ -2,6 +2,8 @@ plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
+    alias(libs.plugins.ksp)
+
 }
 
 android {
@@ -49,7 +51,11 @@ dependencies {
     implementation(libs.androidx.ui.graphics)
     implementation(libs.androidx.ui.tooling.preview)
     implementation(libs.androidx.material3)
+    implementation(libs.androidx.room.runtime)
+    implementation(libs.androidx.room.ktx)
+    ksp(libs.androidx.room.compiler)
     implementation("androidx.navigation:navigation-compose:2.7.7")
+
     implementation("androidx.compose.material:material-icons-extended:1.6.8")
     implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.8.1")
     testImplementation(libs.junit)

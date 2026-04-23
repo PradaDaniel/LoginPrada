@@ -11,11 +11,22 @@ import com.example.trabalhopradalogin.ui.screens.ForgotPasswordScreen
 import com.example.trabalhopradalogin.ui.screens.MenuScreen
 import com.example.trabalhopradalogin.viewmodel.AuthViewModel
 
+import androidx.compose.ui.platform.LocalContext
+import com.example.trabalhopradalogin.data.AppDatabase
+import com.example.trabalhopradalogin.viewmodel.AuthViewModelFactory
+
 @Composable
 fun AppNavigation() {
+    val context = LocalContext.current
+    val database = AppDatabase.getDatabase(context)
+    val userDao = database.userDao()
     val navController = rememberNavController()
-    // Instanciamos o ViewModel que será compartilhado ou fornecido via DI em um projeto maior
-    val authViewModel: AuthViewModel = viewModel()
+    
+    // Instanciamos o ViewModel usando a Factory para passar o UserDao
+    val authViewModel: AuthViewModel = viewModel(
+        factory = AuthViewModelFactory(userDao)
+    )
+
 
     NavHost(navController = navController, startDestination = "login") {
         composable("login") {

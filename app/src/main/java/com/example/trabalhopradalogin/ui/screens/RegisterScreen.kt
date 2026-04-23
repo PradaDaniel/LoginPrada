@@ -12,8 +12,13 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.example.trabalhopradalogin.viewmodel.AuthViewModel
 
+import android.widget.Toast
+import androidx.compose.ui.platform.LocalContext
+import com.example.trabalhopradalogin.data.User
+
 @Composable
 fun RegisterScreen(navController: NavController, viewModel: AuthViewModel) {
+    val context = LocalContext.current
     var nome by remember { mutableStateOf("") }
     var email by remember { mutableStateOf("") }
     var telefone by remember { mutableStateOf("") }
@@ -55,21 +60,28 @@ fun RegisterScreen(navController: NavController, viewModel: AuthViewModel) {
 
         Button(
             onClick = {
-                // Validações explícitas de estrutura do app
                 if (nome.isBlank() || email.isBlank() || telefone.isBlank() || senha.isBlank() || confirmaSenha.isBlank()) {
                     errorMessage = "Todos os campos são obrigatórios."
                 } else if (senha != confirmaSenha) {
                     errorMessage = "As senhas não coincidem."
                 } else {
                     errorMessage = ""
-                    // Sucesso no registro, volta para o login via popBackStack
-                    navController.popBackStack("login", inclusive = false)
+                    val user = User(nome = nome, email = email, telefone = telefone, senha = senha)
+                    viewModel.registerUser(user) { success ->
+                        if (success) {
+                            Toast.makeText(context, "Usuário registrado com sucesso!", Toast.LENGTH_SHORT).show()
+                            navController.popBackStack("login", inclusive = false)
+                        } else {
+                            errorMessage = "Erro ao registrar usuário."
+                        }
+                    }
                 }
             },
             modifier = Modifier.fillMaxWidth()
         ) {
             Text("Registrar")
         }
+
         
         Spacer(modifier = Modifier.height(8.dp))
         TextButton(onClick = { navController.popBackStack() }) { 
