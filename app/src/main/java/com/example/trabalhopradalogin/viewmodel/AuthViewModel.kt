@@ -22,11 +22,15 @@ class AuthViewModel(private val userDao: UserDao) : ViewModel() {
         }
     }
     
+    var loggedInUser: User? = null
+        private set
+
     // Função para verificar se o usuário existe para o Login
     fun loginUser(email: String, senha: String, onResult: (Boolean) -> Unit) {
         viewModelScope.launch {
             val user = userDao.getUserByEmail(email)
             if (user != null && user.senha == senha) {
+                loggedInUser = user
                 onResult(true)
             } else {
                 onResult(false)
