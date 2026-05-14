@@ -21,4 +21,7 @@ interface TripDao {
 
     @Query("SELECT * FROM trips WHERE userId = :userId")
     fun getTripsByUserId(userId: Int): Flow<List<Trip>>
+
+    @Query("SELECT * FROM trips WHERE userId = :userId AND destination LIKE '%' || :city || '%' COLLATE NOCASE AND :currentDate >= startDate AND :currentDate <= (endDate + 86400000) LIMIT 1")
+    suspend fun findCurrentTripByCity(userId: Int, city: String, currentDate: Long): Trip?
 }
