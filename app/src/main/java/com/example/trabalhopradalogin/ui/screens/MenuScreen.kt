@@ -27,6 +27,13 @@ import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
+import android.webkit.WebView
+import android.webkit.WebViewClient
+import androidx.compose.ui.viewinterop.AndroidView
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.filled.Map
+import androidx.compose.material.icons.filled.PhotoLibrary
+import android.widget.Toast
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -126,6 +133,34 @@ fun MenuScreen(navController: NavController, authViewModel: AuthViewModel) {
                         }
                     }
                 )
+            },
+            bottomBar = {
+                if (locationState.currentTrip != null) {
+                    NavigationBar(
+                        containerColor = MaterialTheme.colorScheme.primaryContainer,
+                        contentColor = MaterialTheme.colorScheme.onPrimaryContainer
+                    ) {
+                        NavigationBarItem(
+                            icon = { Icon(Icons.Default.Map, contentDescription = "Roteiro") },
+                            label = { Text("Roteiro") },
+                            selected = false,
+                            onClick = {
+                                Toast.makeText(context, "Funcionalidade de Roteiro será implementada em outra tarefa.", Toast.LENGTH_LONG).show()
+                            }
+                        )
+                        NavigationBarItem(
+                            icon = { Icon(Icons.Default.PhotoLibrary, contentDescription = "Fotos") },
+                            label = { Text("Fotos") },
+                            selected = false,
+                            onClick = {
+                                val tripId = locationState.currentTrip?.id
+                                if (tripId != null) {
+                                    navController.navigate("trip_photos/$tripId")
+                                }
+                            }
+                        )
+                    }
+                }
             }
         ) { paddingValues ->
             Column(
@@ -155,6 +190,9 @@ fun MenuScreen(navController: NavController, authViewModel: AuthViewModel) {
                 } else {
                     locationState.currentTrip?.let { trip ->
                         TripInfoCard(trip, locationState.city ?: "")
+                        if (locationState.latitude != null && locationState.longitude != null) {
+                            TripMap(latitude = locationState.latitude!!, longitude = locationState.longitude!!)
+                        }
                     } ?: locationState.city?.let { city ->
                         Card(
                             modifier = Modifier.fillMaxWidth().padding(vertical = 16.dp),
@@ -265,5 +303,61 @@ fun TripDetailRow(label: String, value: String) {
     ) {
         Text(text = label, style = MaterialTheme.typography.bodyMedium, fontWeight = androidx.compose.ui.text.font.FontWeight.Bold)
         Text(text = value, style = MaterialTheme.typography.bodyMedium)
+    }
+}
+
+@Composable
+fun TripMap(latitude: Double, longitude: Double, modifier: Modifier = Modifier) {
+    val htmlContent = """
+        <!DOCTYPE html>
+        <html>
+        <head>
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+            <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+            <style>
+                html, body, #map {
+                    height: 100%;
+                    margin: 0;
+                    padding: 0;
+                    background: #f0f0f0;
+                }
+            </style>
+        </head>
+        <body>
+            <div id="map"></div>
+            <script>
+                var map = L.map('map', {zoomControl: false}).setView([$latitude, $longitude], 14);
+                L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                    maxZoom: 19,
+                    attribution: '© OSM'
+                }).addTo(map);
+                L.marker([$latitude, $longitude]).addTo(map);
+            </script>
+        </body>
+        </html>
+    """.trimIndent()
+
+    Card(
+        modifier = modifier
+            .fillMaxWidth()
+            .height(220.dp)
+            .padding(vertical = 8.dp),
+        elevation = CardDefaults.cardElevation(defaultElevation = 6.dp),
+        shape = RoundedCornerShape(16.dp)
+    ) {
+        AndroidView(
+            factory = { ctx ->
+                WebView(ctx).apply {
+                    settings.javaScriptEnabled = true
+                    webViewClient = WebViewClient()
+                    loadDataWithBaseURL("https://openstreetmap.org", htmlContent, "text/html", "UTF-8", null)
+                }
+            },
+            update = { webView ->
+                webView.loadDataWithBaseURL("https://openstreetmap.org", htmlContent, "text/html", "UTF-8", null)
+            },
+            modifier = Modifier.fillMaxSize()
+        )
     }
 }

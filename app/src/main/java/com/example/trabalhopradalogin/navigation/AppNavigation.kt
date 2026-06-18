@@ -18,6 +18,8 @@ import com.example.trabalhopradalogin.viewmodel.TripViewModelFactory
 import com.example.trabalhopradalogin.ui.screens.NewTripScreen
 import com.example.trabalhopradalogin.ui.screens.MyTripsScreen
 import com.example.trabalhopradalogin.ui.screens.AboutScreen
+import com.example.trabalhopradalogin.ui.screens.TripPhotosScreen
+import com.example.trabalhopradalogin.viewmodel.TripPhotoViewModel
 
 @Composable
 fun AppNavigation() {
@@ -35,6 +37,8 @@ fun AppNavigation() {
     val tripViewModel: TripViewModel = viewModel(
         factory = TripViewModelFactory(tripDao)
     )
+
+    val tripPhotoViewModel: TripPhotoViewModel = viewModel()
 
     NavHost(navController = navController, startDestination = "login") {
         composable("login") {
@@ -57,6 +61,11 @@ fun AppNavigation() {
         }
         composable("about") {
             AboutScreen(navController = navController)
+        }
+        composable("trip_photos/{tripId}") { backStackEntry ->
+            val tripIdStr = backStackEntry.arguments?.getString("tripId")
+            val tripId = tripIdStr?.toIntOrNull() ?: 0
+            TripPhotosScreen(navController = navController, tripId = tripId, viewModel = tripPhotoViewModel)
         }
     }
 }
