@@ -20,6 +20,11 @@ import com.example.trabalhopradalogin.ui.screens.MyTripsScreen
 import com.example.trabalhopradalogin.ui.screens.AboutScreen
 import com.example.trabalhopradalogin.ui.screens.TripPhotosScreen
 import com.example.trabalhopradalogin.viewmodel.TripPhotoViewModel
+import androidx.compose.runtime.remember
+import com.example.trabalhopradalogin.data.repository.ItineraryRepository
+import com.example.trabalhopradalogin.viewmodel.ItineraryViewModel
+import com.example.trabalhopradalogin.viewmodel.ItineraryViewModelFactory
+import com.example.trabalhopradalogin.ui.screens.ItineraryScreen
 
 @Composable
 fun AppNavigation() {
@@ -39,6 +44,11 @@ fun AppNavigation() {
     )
 
     val tripPhotoViewModel: TripPhotoViewModel = viewModel()
+
+    val itineraryRepository = remember { ItineraryRepository() }
+    val itineraryViewModel: ItineraryViewModel = viewModel(
+        factory = ItineraryViewModelFactory(itineraryRepository, tripDao)
+    )
 
     NavHost(navController = navController, startDestination = "login") {
         composable("login") {
@@ -66,6 +76,14 @@ fun AppNavigation() {
             val tripIdStr = backStackEntry.arguments?.getString("tripId")
             val tripId = tripIdStr?.toIntOrNull() ?: 0
             TripPhotosScreen(navController = navController, tripId = tripId, viewModel = tripPhotoViewModel)
+        }
+        composable("generate_itinerary") {
+            ItineraryScreen(navController = navController, viewModel = itineraryViewModel, tripId = null)
+        }
+        composable("generate_itinerary/{tripId}") { backStackEntry ->
+            val tripIdStr = backStackEntry.arguments?.getString("tripId")
+            val tripId = tripIdStr?.toIntOrNull() ?: 0
+            ItineraryScreen(navController = navController, viewModel = itineraryViewModel, tripId = tripId)
         }
     }
 }

@@ -40,4 +40,10 @@ class TripViewModel(private val tripDao: TripDao) : ViewModel() {
             tripDao.deleteTrip(trip)
         }
     }
+
+    fun getTripById(tripId: Int, onResult: (Trip?) -> Unit) {
+        viewModelScope.launch {
+            onResult(tripDao.getTripById(tripId))
+        }
+    }
 }

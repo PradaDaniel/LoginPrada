@@ -12,5 +12,6 @@ data class Trip(
     val endDate: Long,
     val budget: Double,
     val totalExpenses: Double = 0.0,
-    val userId: Int
+    val userId: Int,
+    val itinerary: String? = null
 )

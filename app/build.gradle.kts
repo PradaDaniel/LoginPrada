@@ -61,6 +61,9 @@ dependencies {
 
     implementation("androidx.compose.material:material-icons-extended:1.6.8")
     implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.8.1")
+    implementation(libs.retrofit)
+    implementation(libs.retrofit.converter.gson)
+    implementation(libs.okhttp.logging)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)

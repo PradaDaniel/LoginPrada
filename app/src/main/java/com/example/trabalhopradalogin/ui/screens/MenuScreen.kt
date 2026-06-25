@@ -103,6 +103,16 @@ fun MenuScreen(navController: NavController, authViewModel: AuthViewModel) {
                     },
                     modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding)
                 )
+                NavigationDrawerItem(
+                    icon = { Icon(Icons.Default.Map, contentDescription = null) },
+                    label = { Text("Gerar Roteiro") },
+                    selected = false,
+                    onClick = {
+                        scope.launch { drawerState.close() }
+                        navController.navigate("generate_itinerary")
+                    },
+                    modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding)
+                )
                 
                 Spacer(modifier = Modifier.height(8.dp))
                 HorizontalDivider(modifier = Modifier.padding(horizontal = 28.dp))
@@ -145,7 +155,12 @@ fun MenuScreen(navController: NavController, authViewModel: AuthViewModel) {
                             label = { Text("Roteiro") },
                             selected = false,
                             onClick = {
-                                Toast.makeText(context, "Funcionalidade de Roteiro será implementada em outra tarefa.", Toast.LENGTH_LONG).show()
+                                val tripId = locationState.currentTrip?.id
+                                if (tripId != null) {
+                                    navController.navigate("generate_itinerary/$tripId")
+                                } else {
+                                    navController.navigate("generate_itinerary")
+                                }
                             }
                         )
                         NavigationBarItem(

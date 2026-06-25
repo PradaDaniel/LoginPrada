@@ -24,4 +24,7 @@ interface TripDao {
 
     @Query("SELECT * FROM trips WHERE userId = :userId AND destination LIKE '%' || :city || '%' COLLATE NOCASE AND :currentDate >= startDate AND :currentDate <= (endDate + 86400000) LIMIT 1")
     suspend fun findCurrentTripByCity(userId: Int, city: String, currentDate: Long): Trip?
+
+    @Query("SELECT * FROM trips WHERE id = :tripId LIMIT 1")
+    suspend fun getTripById(tripId: Int): Trip?
 }
