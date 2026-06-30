@@ -12,6 +12,6 @@ object GeminiConfig {
      * 3. Utilizar ferramentas como Google Cloud Secret Manager.
      */
     // Insira a chave de API do Gemini abaixo (Ex: "AQ.Ab8RN6...")
-    const val API_KEY = ""
+    const val API_KEY = "AQ.Ab8RN6JisXwp-p7a366OiMP90GYVemnJAdBHNJvfA7G2gku2Hg"
     const val BASE_URL = "https://generativelanguage.googleapis.com/"
 }

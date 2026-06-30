@@ -1,7 +1,9 @@
 package com.example.trabalhopradalogin.ui.screens
 
 import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.combinedClickable
+import androidx.compose.material.icons.filled.CalendarMonth
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -166,32 +168,140 @@ fun EditTripDialog(
     onSave: (Trip) -> Unit
 ) {
     var destination by remember { mutableStateOf(trip.destination) }
+    var type by remember { mutableStateOf(trip.type) }
     var budget by remember { mutableStateOf(trip.budget.toString()) }
+    
+    var startDate by remember { mutableLongStateOf(trip.startDate) }
+    var endDate by remember { mutableLongStateOf(trip.endDate) }
+    
+    var showStartDatePicker by remember { mutableStateOf(false) }
+    var showEndDatePicker by remember { mutableStateOf(false) }
+    
+    val dateFormatter = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault())
 
     AlertDialog(
         onDismissRequest = onDismiss,
-        title = { Text("Editar Destino e Orçamento") },
+        title = { Text("Editar Viagem") },
         text = {
-            Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+            Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
                 OutlinedTextField(
                     value = destination,
                     onValueChange = { destination = it },
-                    label = { Text("Destino") }
+                    label = { Text("Destino") },
+                    modifier = Modifier.fillMaxWidth()
                 )
+                
+                Text("Tipo de Viagem", style = MaterialTheme.typography.labelLarge)
+                Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(16.dp)) {
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        RadioButton(selected = type == "Lazer", onClick = { type = "Lazer" })
+                        Text("Lazer")
+                    }
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        RadioButton(selected = type == "Negócios", onClick = { type = "Negócios" })
+                        Text("Negócios")
+                    }
+                }
+                
+                Box(modifier = Modifier.fillMaxWidth().clickable { showStartDatePicker = true }) {
+                    OutlinedTextField(
+                        value = dateFormatter.format(Date(startDate)),
+                        onValueChange = {},
+                        label = { Text("Data Início") },
+                        modifier = Modifier.fillMaxWidth(),
+                        readOnly = true,
+                        enabled = false,
+                        colors = OutlinedTextFieldDefaults.colors(
+                            disabledTextColor = MaterialTheme.colorScheme.onSurface,
+                            disabledBorderColor = MaterialTheme.colorScheme.outline,
+                            disabledLabelColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                            disabledTrailingIconColor = MaterialTheme.colorScheme.onSurfaceVariant
+                        ),
+                        trailingIcon = {
+                            Icon(Icons.Default.CalendarMonth, contentDescription = null)
+                        }
+                    )
+                }
+                
+                Box(modifier = Modifier.fillMaxWidth().clickable { showEndDatePicker = true }) {
+                    OutlinedTextField(
+                        value = dateFormatter.format(Date(endDate)),
+                        onValueChange = {},
+                        label = { Text("Data Fim") },
+                        modifier = Modifier.fillMaxWidth(),
+                        readOnly = true,
+                        enabled = false,
+                        colors = OutlinedTextFieldDefaults.colors(
+                            disabledTextColor = MaterialTheme.colorScheme.onSurface,
+                            disabledBorderColor = MaterialTheme.colorScheme.outline,
+                            disabledLabelColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                            disabledTrailingIconColor = MaterialTheme.colorScheme.onSurfaceVariant
+                        ),
+                        trailingIcon = {
+                            Icon(Icons.Default.CalendarMonth, contentDescription = null)
+                        }
+                    )
+                }
+                
                 OutlinedTextField(
                     value = budget,
                     onValueChange = { budget = it },
-                    label = { Text("Orçamento") }
+                    label = { Text("Orçamento") },
+                    modifier = Modifier.fillMaxWidth()
                 )
             }
         },
         confirmButton = {
             Button(onClick = {
-                onSave(trip.copy(destination = destination, budget = budget.toDoubleOrNull() ?: trip.budget))
+                onSave(
+                    trip.copy(
+                        destination = destination,
+                        type = type,
+                        startDate = startDate,
+                        endDate = endDate,
+                        budget = budget.toDoubleOrNull() ?: trip.budget
+                    )
+                )
             }) { Text("Salvar") }
         },
         dismissButton = {
             TextButton(onClick = onDismiss) { Text("Cancelar") }
         }
     )
+    
+    if (showStartDatePicker) {
+        val datePickerState = rememberDatePickerState(initialSelectedDateMillis = startDate)
+        DatePickerDialog(
+            onDismissRequest = { showStartDatePicker = false },
+            confirmButton = {
+                TextButton(onClick = {
+                    startDate = datePickerState.selectedDateMillis ?: startDate
+                    showStartDatePicker = false
+                }) { Text("Confirmar") }
+            },
+            dismissButton = {
+                TextButton(onClick = { showStartDatePicker = false }) { Text("Cancelar") }
+            }
+        ) {
+            DatePicker(state = datePickerState)
+        }
+    }
+    
+    if (showEndDatePicker) {
+        val datePickerState = rememberDatePickerState(initialSelectedDateMillis = endDate)
+        DatePickerDialog(
+            onDismissRequest = { showEndDatePicker = false },
+            confirmButton = {
+                TextButton(onClick = {
+                    endDate = datePickerState.selectedDateMillis ?: endDate
+                    showEndDatePicker = false
+                }) { Text("Confirmar") }
+            },
+            dismissButton = {
+                TextButton(onClick = { showEndDatePicker = false }) { Text("Cancelar") }
+            }
+        ) {
+            DatePicker(state = datePickerState)
+        }
+    }
 }
