@@ -54,7 +54,7 @@ class ItineraryRepository {
                 - Estilo de Viagem: $style
                 - Orçamento: $budget
 
-                Por favor, formate a resposta com títulos claros para cada dia, use tópicos e seja específico nas atrações recomendadas, opções de restaurantes e dicas locais de viagem. Destaque pontos importantes em negrito. Escreva a resposta em português brasileiro.
+                Por favor, formate a resposta com títulos claros divididos por dias (ex: "Dia 1", "Dia 2", etc.), use tópicos e seja específico nas atrações recomendadas, opções de restaurantes e dicas locais de viagem. Destaque pontos importantes em negrito. Escreva a resposta em português brasileiro.
             """.trimIndent()
 
             val request = GeminiRequest(

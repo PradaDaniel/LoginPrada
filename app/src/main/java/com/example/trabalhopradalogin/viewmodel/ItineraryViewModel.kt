@@ -39,6 +39,40 @@ class ItineraryViewModel(
     private val _associatedTrip = MutableStateFlow<Trip?>(null)
     val associatedTrip: StateFlow<Trip?> = _associatedTrip.asStateFlow()
 
+    private val _userTrips = MutableStateFlow<List<Trip>>(emptyList())
+    val userTrips: StateFlow<List<Trip>> = _userTrips.asStateFlow()
+
+    fun loadUserTrips(userId: Int) {
+        viewModelScope.launch {
+            tripDao.getTripsByUserId(userId).collect { trips ->
+                _userTrips.value = trips
+            }
+        }
+    }
+
+    fun selectTrip(trip: Trip?) {
+        _associatedTrip.value = trip
+        if (trip != null) {
+            destination.value = trip.destination
+            
+            // Formatting duration
+            val diffTime = trip.endDate - trip.startDate
+            val diffDays = (diffTime / (1000 * 60 * 60 * 24)).toInt() + 1
+            duration.value = if (diffDays > 0) "$diffDays dia(s)" else ""
+            
+            travelStyle.value = trip.type
+
+            // If trip already has a saved itinerary, display it
+            if (!trip.itinerary.isNullOrBlank()) {
+                _uiState.value = ItineraryUiState.Success(trip.itinerary)
+            } else {
+                _uiState.value = ItineraryUiState.Idle
+            }
+        } else {
+            _associatedTrip.value = null
+        }
+    }
+
     fun loadTripDetails(tripId: Int) {
         viewModelScope.launch {
             val trip = tripDao.getTripById(tripId)

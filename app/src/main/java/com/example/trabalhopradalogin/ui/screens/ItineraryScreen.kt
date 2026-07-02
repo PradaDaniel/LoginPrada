@@ -29,23 +29,34 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.example.trabalhopradalogin.viewmodel.ItineraryUiState
 import com.example.trabalhopradalogin.viewmodel.ItineraryViewModel
+import com.example.trabalhopradalogin.viewmodel.AuthViewModel
+import com.example.trabalhopradalogin.data.Trip
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ItineraryScreen(
     navController: NavController,
     viewModel: ItineraryViewModel,
+    authViewModel: AuthViewModel,
     tripId: Int? = null
 ) {
     val context = LocalContext.current
     val uiState by viewModel.uiState.collectAsState()
     val associatedTrip by viewModel.associatedTrip.collectAsState()
+    val userTrips by viewModel.userTrips.collectAsState()
 
     var destination by viewModel.destination
     var duration by viewModel.duration
     var interests by viewModel.interests
     var travelStyle by viewModel.travelStyle
     var budgetLevel by viewModel.budgetLevel
+
+    val userId = authViewModel.loggedInUser?.id ?: 0
+    LaunchedEffect(userId) {
+        if (userId != 0) {
+            viewModel.loadUserTrips(userId)
+        }
+    }
 
     LaunchedEffect(tripId) {
         if (tripId != null && tripId != 0) {
@@ -90,6 +101,9 @@ fun ItineraryScreen(
                         onTravelStyleChange = { travelStyle = it },
                         budgetLevel = budgetLevel,
                         onBudgetLevelChange = { budgetLevel = it },
+                        userTrips = userTrips,
+                        selectedTrip = associatedTrip,
+                        onTripSelected = { viewModel.selectTrip(it) },
                         onGenerateClick = { viewModel.generateItinerary() }
                     )
                 }
@@ -260,6 +274,9 @@ fun ItineraryForm(
     onTravelStyleChange: (String) -> Unit,
     budgetLevel: String,
     onBudgetLevelChange: (String) -> Unit,
+    userTrips: List<Trip>,
+    selectedTrip: Trip?,
+    onTripSelected: (Trip?) -> Unit,
     onGenerateClick: () -> Unit
 ) {
     val styles = listOf("Lazer", "Negócios", "Cultura", "Aventura", "Família")
@@ -267,6 +284,7 @@ fun ItineraryForm(
     
     var styleExpanded by remember { mutableStateOf(false) }
     var budgetExpanded by remember { mutableStateOf(false) }
+    var tripExpanded by remember { mutableStateOf(false) }
 
     Column(
         modifier = Modifier
@@ -279,6 +297,44 @@ fun ItineraryForm(
             style = MaterialTheme.typography.bodyMedium,
             color = MaterialTheme.colorScheme.onSurfaceVariant
         )
+
+        ExposedDropdownMenuBox(
+            expanded = tripExpanded,
+            onExpandedChange = { tripExpanded = it }
+        ) {
+            val selectedTripText = selectedTrip?.let { "${it.destination} (${it.type})" } ?: "Nenhuma (Roteiro Avulso)"
+            OutlinedTextField(
+                value = selectedTripText,
+                onValueChange = {},
+                readOnly = true,
+                label = { Text("Associar a uma Viagem (Opcional)") },
+                trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = tripExpanded) },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .menuAnchor()
+            )
+            ExposedDropdownMenu(
+                expanded = tripExpanded,
+                onDismissRequest = { tripExpanded = false }
+            ) {
+                DropdownMenuItem(
+                    text = { Text("Nenhuma (Roteiro Avulso)") },
+                    onClick = {
+                        onTripSelected(null)
+                        tripExpanded = false
+                    }
+                )
+                userTrips.forEach { trip ->
+                    DropdownMenuItem(
+                        text = { Text("${trip.destination} (${trip.type})") },
+                        onClick = {
+                            onTripSelected(trip)
+                            tripExpanded = false
+                        }
+                    )
+                }
+            }
+        }
 
         OutlinedTextField(
             value = destination,

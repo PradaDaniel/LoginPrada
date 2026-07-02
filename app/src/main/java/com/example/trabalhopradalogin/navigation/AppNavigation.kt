@@ -78,12 +78,12 @@ fun AppNavigation() {
             TripPhotosScreen(navController = navController, tripId = tripId, viewModel = tripPhotoViewModel)
         }
         composable("generate_itinerary") {
-            ItineraryScreen(navController = navController, viewModel = itineraryViewModel, tripId = null)
+            ItineraryScreen(navController = navController, viewModel = itineraryViewModel, authViewModel = authViewModel, tripId = null)
         }
         composable("generate_itinerary/{tripId}") { backStackEntry ->
             val tripIdStr = backStackEntry.arguments?.getString("tripId")
             val tripId = tripIdStr?.toIntOrNull() ?: 0
-            ItineraryScreen(navController = navController, viewModel = itineraryViewModel, tripId = tripId)
+            ItineraryScreen(navController = navController, viewModel = itineraryViewModel, authViewModel = authViewModel, tripId = tripId)
         }
     }
 }

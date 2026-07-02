@@ -23,6 +23,8 @@ import androidx.navigation.NavController
 import com.example.trabalhopradalogin.data.Trip
 import com.example.trabalhopradalogin.viewmodel.AuthViewModel
 import com.example.trabalhopradalogin.viewmodel.TripViewModel
+import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.ui.text.input.KeyboardType
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -152,6 +154,10 @@ fun TripCard(
                 Text("Orçamento: R$ ${"%.2f".format(trip.budget)}", style = MaterialTheme.typography.bodySmall)
             }
             
+            IconButton(onClick = onEdit) {
+                Icon(Icons.Default.Edit, contentDescription = "Editar", tint = MaterialTheme.colorScheme.primary)
+            }
+            
             // "tap on the left or right side" - aqui no lado direito
             IconButton(onClick = onDelete) {
                 Icon(Icons.Default.Delete, contentDescription = "Excluir", tint = MaterialTheme.colorScheme.error)
@@ -203,7 +209,7 @@ fun EditTripDialog(
                     }
                 }
                 
-                Box(modifier = Modifier.fillMaxWidth().clickable { showStartDatePicker = true }) {
+                Box(modifier = Modifier.fillMaxWidth()) {
                     OutlinedTextField(
                         value = dateFormatter.format(Date(startDate)),
                         onValueChange = {},
@@ -221,9 +227,14 @@ fun EditTripDialog(
                             Icon(Icons.Default.CalendarMonth, contentDescription = null)
                         }
                     )
+                    Box(
+                        modifier = Modifier
+                            .matchParentSize()
+                            .clickable { showStartDatePicker = true }
+                    )
                 }
                 
-                Box(modifier = Modifier.fillMaxWidth().clickable { showEndDatePicker = true }) {
+                Box(modifier = Modifier.fillMaxWidth()) {
                     OutlinedTextField(
                         value = dateFormatter.format(Date(endDate)),
                         onValueChange = {},
@@ -241,28 +252,41 @@ fun EditTripDialog(
                             Icon(Icons.Default.CalendarMonth, contentDescription = null)
                         }
                     )
+                    Box(
+                        modifier = Modifier
+                            .matchParentSize()
+                            .clickable { showEndDatePicker = true }
+                    )
                 }
                 
                 OutlinedTextField(
                     value = budget,
                     onValueChange = { budget = it },
                     label = { Text("Orçamento") },
-                    modifier = Modifier.fillMaxWidth()
+                    modifier = Modifier.fillMaxWidth(),
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal)
                 )
             }
         },
         confirmButton = {
-            Button(onClick = {
-                onSave(
-                    trip.copy(
-                        destination = destination,
-                        type = type,
-                        startDate = startDate,
-                        endDate = endDate,
-                        budget = budget.toDoubleOrNull() ?: trip.budget
-                    )
-                )
-            }) { Text("Salvar") }
+            val isBudgetValid = budget.toDoubleOrNull() != null && (budget.toDoubleOrNull() ?: 0.0) >= 0.0
+            val isFormValid = destination.isNotBlank() && isBudgetValid
+            Button(
+                onClick = {
+                    if (isFormValid) {
+                        onSave(
+                            trip.copy(
+                                destination = destination,
+                                type = type,
+                                startDate = startDate,
+                                endDate = endDate,
+                                budget = budget.toDoubleOrNull() ?: trip.budget
+                            )
+                        )
+                    }
+                },
+                enabled = isFormValid
+            ) { Text("Salvar") }
         },
         dismissButton = {
             TextButton(onClick = onDismiss) { Text("Cancelar") }

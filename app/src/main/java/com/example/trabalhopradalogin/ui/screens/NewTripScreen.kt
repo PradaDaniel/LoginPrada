@@ -75,7 +75,7 @@ fun NewTripScreen(
                 }
             }
             
-            Box(modifier = Modifier.fillMaxWidth().clickable { showStartDatePicker = true }) {
+            Box(modifier = Modifier.fillMaxWidth()) {
                 OutlinedTextField(
                     value = dateFormatter.format(Date(startDate)),
                     onValueChange = {},
@@ -93,9 +93,14 @@ fun NewTripScreen(
                         Icon(Icons.Default.CalendarMonth, contentDescription = null)
                     }
                 )
+                Box(
+                    modifier = Modifier
+                        .matchParentSize()
+                        .clickable { showStartDatePicker = true }
+                )
             }
             
-            Box(modifier = Modifier.fillMaxWidth().clickable { showEndDatePicker = true }) {
+            Box(modifier = Modifier.fillMaxWidth()) {
                 OutlinedTextField(
                     value = dateFormatter.format(Date(endDate)),
                     onValueChange = {},
@@ -112,6 +117,11 @@ fun NewTripScreen(
                     trailingIcon = {
                         Icon(Icons.Default.CalendarMonth, contentDescription = null)
                     }
+                )
+                Box(
+                    modifier = Modifier
+                        .matchParentSize()
+                        .clickable { showEndDatePicker = true }
                 )
             }
             
