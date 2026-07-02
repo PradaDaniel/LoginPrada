@@ -1,4 +1,4 @@
-package com.example.trabalhopradalogin.data.model
+ package com.example.trabalhopradalogin.data.model
 
 data class GeminiRequest(
     val contents: List<Content>,
